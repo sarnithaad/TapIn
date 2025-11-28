@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://tapin-hxx0.onrender.com' || 'http://localhost:5000';
+const API_URL = 'https://tapin-hxx0.onrender.com';
 
 // Owner login
 export const ownerLogin = (email, password) => {
