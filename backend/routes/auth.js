@@ -1,40 +1,26 @@
 const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+const router = express.Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Owner = require('../models/Owner');
+const Worker = require('../models/Worker');
 
-const app = express();
-
-app.use(cors());
-app.use(bodyParser.json());
-
-// YOUR HARDCODED MONGO URI - replace these values:
-const mongoURI = 'mongodb+srv://SharnithaDhandapani:SharnithaDhandapani@cluster0.tw9p5.mongodb.net/';
-
-mongoose.connect(mongoURI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
-})
-.then(() => console.log('MongoDB connected'))
-.catch((err) => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1);
+router.post('/owner-login', async (req, res) => {
+const { email, password } = req.body;
+const owner = await Owner.findOne({ email });
+if (!owner || !bcrypt.compareSync(password, owner.passwordHash))
+return res.status(400).json({ message: 'Invalid credentials' });
+const token = jwt.sign({ id: owner._id, role: 'owner' }, process.env.JWT_SECRET);
+res.json({ token, owner });
 });
 
-const authRoutes = require('./routes/auth');
-const workerRoutes = require('./routes/worker');
-const attendanceRoutes = require('./routes/attendance');
-const reportRoutes = require('./routes/report');
-const errorHandler = require('./middleware/errorHandler');
+router.post('/worker-login', async (req, res) => {
+const { login, password } = req.body;
+const worker = await Worker.findOne({ login });
+if (!worker || !bcrypt.compareSync(password, worker.passwordHash))
+return res.status(400).json({ message: 'Invalid credentials' });
+const token = jwt.sign({ id: worker._id, role: 'worker' }, process.env.JWT_SECRET);
+res.json({ token, worker });
+});
 
-app.use('/auth', authRoutes);
-app.use('/worker', workerRoutes);
-app.use('/attendance', attendanceRoutes);
-app.use('/report', reportRoutes);
-
-app.use(errorHandler);
-
-app.get('/', (req, res) => res.send('TapIn backend running'));
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server on ${PORT}`));
+module.exports = router;
