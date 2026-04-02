@@ -11,6 +11,11 @@
     "ios": {
       "supportsTablet": true
     },
-    "platforms": ["ios", "android"]
+    "android": {},
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "platforms": ["ios", "android", "web"]
   }
 }
