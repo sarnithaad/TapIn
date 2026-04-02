@@ -24,6 +24,7 @@
       "bundler": "metro",
       "output": "static"
     },
-    "platforms": ["ios", "android", "web"]
+    "platforms": ["ios", "android"]
   }
 }
+
